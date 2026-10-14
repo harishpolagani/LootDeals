@@ -2,96 +2,438 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loot Deals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Loot Deals Hub</title>
 
   <!-- PWA & Mobile Meta Tags -->
-  <meta name="theme-color" content="#0d6efd">
+  <meta name="theme-color" content="#fc8019">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Loot Deals">
-  <link rel="apple-touch-icon" href="icon-192.png">
 
   <!-- Web App Manifest -->
   <link rel="manifest" href="manifest.json">
 
   <style>
     :root {
-      --primary-color: #0d6efd;
-      --bg-color: #f8f9fa;
-      --card-bg: #ffffff;
-      --text-color: #212529;
+      --primary: #fc8019;
+      --primary-dark: #e26f10;
+      --bg: #0f1115;
+      --card-bg: #1a1d24;
+      --card-border: #2a2f3a;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent-green: #10b981;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-color);
+      background-color: var(--bg);
+      color: var(--text);
       padding: 16px;
-      line-height: 1.5;
+      padding-bottom: 80px;
+    }
+
+    /* PWA Install Banner */
+    .install-banner {
+      display: none;
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 10px;
+      text-align: center;
+      margin-bottom: 16px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(252, 128, 25, 0.3);
     }
 
     header {
       text-align: center;
-      padding: 16px 0;
-      background-color: var(--card-bg);
-      border-radius: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      margin-bottom: 20px;
+      padding: 8px 0 16px;
     }
 
     h1 {
       font-size: 1.5rem;
-      color: var(--primary-color);
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.5px;
     }
 
-    .install-banner {
-      display: none;
-      background-color: var(--primary-color);
-      color: white;
-      padding: 12px 16px;
-      border-radius: 8px;
-      text-align: center;
+    p.subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Timer Widget */
+    .timer-card {
+      background: linear-gradient(135deg, #1f242d 0%, #161920 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
       margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .timer-info span {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .timer-info strong {
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .countdown-display {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+      background: rgba(252, 128, 25, 0.1);
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(252, 128, 25, 0.2);
+    }
+
+    /* Category Filter Pills */
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+
+    .filters::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      white-space: nowrap;
       cursor: pointer;
+      font-weight: 500;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Deal Cards Grid */
+    .deal-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .deal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.1s ease, border-color 0.1s ease;
+    }
+
+    .deal-card:active {
+      transform: scale(0.98);
+      border-color: var(--primary);
+    }
+
+    .card-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .badge.instamart { color: var(--primary); background: rgba(252, 128, 25, 0.12); }
+    .badge.amazon { color: #f59e0b; background: rgba(245, 158, 11, 0.12); }
+    .badge.steal { color: var(--accent-green); background: rgba(16, 185, 129, 0.12); }
+
+    .card-title {
+      font-size: 0.95rem;
       font-weight: 600;
     }
 
-    /* Your existing deal index styles continue here */
+    .card-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .open-arrow {
+      color: var(--primary);
+      font-size: 1.2rem;
+      font-weight: bold;
+      padding-left: 10px;
+    }
+
+    /* Add Bookmark Form */
+    .add-form-container {
+      margin-top: 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .add-form-container h2 {
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    input, select {
+      background: #12141a;
+      border: 1px solid var(--card-border);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
+    button.submit-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    button.submit-btn:active {
+      background: var(--primary-dark);
+    }
   </style>
 </head>
 <body>
 
-  <!-- Optional Custom Install Button for Browser Prompt -->
+  <!-- In-app PWA Install Banner -->
   <div id="installBanner" class="install-banner">
     📲 Install Loot Deals App
   </div>
 
   <header>
     <h1>🔥 Loot Deals Hub</h1>
+    <p class="subtitle">Real-time flash sales & clearance drop links</p>
   </header>
 
-  <main>
-    <!-- PASTE YOUR EXISTING DEALS CONTENT / LISTINGS HERE -->
-  </main>
+  <!-- 9 PM Clearance Drop Countdown -->
+  <div class="timer-card">
+    <div class="timer-info">
+      <span>Next Flash Clearance</span>
+      <strong>9:00 PM Fresh Drop</strong>
+    </div>
+    <div class="countdown-display" id="timer">--:--:--</div>
+  </div>
+
+  <!-- Category Filter Pills -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="filterDeals('all')">All Deals</button>
+    <button class="filter-btn" onclick="filterDeals('instamart')">Instamart</button>
+    <button class="filter-btn" onclick="filterDeals('loot')">₹1 / ₹9 Steals</button>
+    <button class="filter-btn" onclick="filterDeals('amazon')">Amazon</button>
+  </div>
+
+  <!-- Deals List -->
+  <div class="deal-grid" id="dealContainer"></div>
+
+  <!-- Add Custom Bookmark Form -->
+  <div class="add-form-container">
+    <h2>Save Custom Deal Link</h2>
+    <div class="form-group">
+      <input type="text" id="dealTitle" placeholder="Title (e.g. Night Vegetable Drop)" />
+      <input type="url" id="dealUrl" placeholder="Target Link (https://...)" />
+      <select id="dealCategory">
+        <option value="instamart">Instamart</option>
+        <option value="loot">₹1 / ₹9 Steals</option>
+        <option value="amazon">Amazon</option>
+      </select>
+      <button class="submit-btn" onclick="addBookmark()">Save Shortcut</button>
+    </div>
+  </div>
 
   <script>
-    // Register Service Worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('Service Worker Registered:', reg.scope))
-          .catch((err) => console.error('Service Worker Registration Failed:', err));
+    // 1. Initial Deal Listings
+    const DEFAULT_DEALS = [
+      {
+        id: '1',
+        title: 'Instamart 9 PM Clearance Engine',
+        category: 'instamart',
+        meta: 'Fresh Produce & Bakery Clearance Drops',
+        badge: 'instamart',
+        url: 'https://www.swiggy.com/instamart'
+      },
+      {
+        id: '2',
+        title: '₹1 & ₹9 Steal Deal Collection',
+        category: 'loot',
+        meta: 'Cart Additions & Flash Steals',
+        badge: 'steal',
+        url: 'https://www.swiggy.com/instamart'
+      },
+      {
+        id: '3',
+        title: 'Amazon Lightning Deals Hub',
+        category: 'amazon',
+        meta: 'Flash Discounts & Daily Lightning Deals',
+        badge: 'amazon',
+        url: 'https://www.amazon.in/deals'
+      }
+    ];
+
+    function getStoredDeals() {
+      const stored = localStorage.getItem('loot_deals_data');
+      return stored ? JSON.parse(stored) : DEFAULT_DEALS;
+    }
+
+    let activeCategory = 'all';
+
+    function renderDeals() {
+      const container = document.getElementById('dealContainer');
+      container.innerHTML = '';
+      const deals = getStoredDeals();
+
+      const filtered = activeCategory === 'all' 
+        ? deals 
+        : deals.filter(item => item.category === activeCategory);
+
+      filtered.forEach(deal => {
+        const card = document.createElement('a');
+        card.className = 'deal-card';
+        card.href = deal.url;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer';
+        card.innerHTML = `
+          <div class="card-left">
+            <span class="badge ${deal.badge || deal.category}">${deal.category.toUpperCase()}</span>
+            <div class="card-title">${deal.title}</div>
+            <div class="card-meta">${deal.meta || deal.url}</div>
+          </div>
+          <div class="open-arrow">→</div>
+        `;
+        container.appendChild(card);
       });
     }
 
-    // In-app Install Prompt Handling
+    function filterDeals(cat) {
+      activeCategory = cat;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        const match = cat === 'all' 
+          ? btn.textContent.toLowerCase().includes('all') 
+          : (cat === 'loot' ? btn.textContent.includes('₹1') : btn.textContent.toLowerCase().includes(cat));
+        btn.classList.toggle('active', match);
+      });
+      renderDeals();
+    }
+
+    function addBookmark() {
+      const title = document.getElementById('dealTitle').value.trim();
+      const url = document.getElementById('dealUrl').value.trim();
+      const category = document.getElementById('dealCategory').value;
+
+      if (!title || !url) {
+        alert('Please enter both a title and URL.');
+        return;
+      }
+
+      const deals = getStoredDeals();
+      deals.unshift({
+        id: Date.now().toString(),
+        title,
+        category,
+        meta: url,
+        badge: category,
+        url
+      });
+
+      localStorage.setItem('loot_deals_data', JSON.stringify(deals));
+      document.getElementById('dealTitle').value = '';
+      document.getElementById('dealUrl').value = '';
+      renderDeals();
+    }
+
+    // 2. Countdown Timer to 9:00 PM IST
+    function updateCountdown() {
+      const now = new Date();
+      const dropTime = new Date();
+      dropTime.setHours(21, 0, 0, 0);
+
+      if (now > dropTime) {
+        dropTime.setDate(dropTime.getDate() + 1);
+      }
+
+      const diff = dropTime - now;
+      const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+      const mins = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+      const secs = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+
+      document.getElementById('timer').innerText = `${hours}:${mins}:${secs}`;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+    renderDeals();
+
+    // 3. Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('SW Active:', reg.scope))
+          .catch((err) => console.log('SW Registration error:', err));
+      });
+    }
+
+    // 4. In-App Install Prompt
     let deferredPrompt;
     const installBanner = document.getElementById('installBanner');
 
@@ -104,8 +446,7 @@
     installBanner.addEventListener('click', async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response to install: ${outcome}`);
+        await deferredPrompt.userChoice;
         deferredPrompt = null;
         installBanner.style.display = 'none';
       }
@@ -113,7 +454,6 @@
 
     window.addEventListener('appinstalled', () => {
       installBanner.style.display = 'none';
-      console.log('Loot Deals installed successfully');
     });
   </script>
 </body>
