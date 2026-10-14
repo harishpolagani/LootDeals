@@ -1,460 +1,1065 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Loot Deals Hub</title>
+  <title>InstaLoot - Multi-Store Deal Hub</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <!-- Inter & JetBrains Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
-  <!-- PWA & Mobile Meta Tags -->
-  <meta name="theme-color" content="#fc8019">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Loot Deals">
-
-  <!-- Web App Manifest -->
-  <link rel="manifest" href="manifest.json">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            swiggy: {
+              DEFAULT: '#FC8019',
+              dark: '#E06D12',
+              light: '#FFA654',
+              glow: 'rgba(252, 128, 25, 0.25)',
+              surface: '#1F1710'
+            },
+            zomato: {
+              DEFAULT: '#E23744',
+              dark: '#BA1B28',
+              surface: '#201214'
+            },
+            blinkit: {
+              DEFAULT: '#F8CB46',
+              dark: '#D9A91D',
+              surface: '#221D10'
+            },
+            flipkart: {
+              DEFAULT: '#2874F0',
+              yellow: '#FFDF00',
+              dark: '#1254BF',
+              surface: '#101625'
+            },
+            amazon: {
+              DEFAULT: '#FF9900',
+              blue: '#146EB4',
+              surface: '#1E1710'
+            },
+            app: {
+              bg: '#0D0E12',
+              card: '#16171F',
+              cardHover: '#1E202B',
+              border: '#282A37',
+              text: '#F3F4F6',
+              muted: '#9CA3AF'
+            }
+          }
+        }
+      }
+    }
+  </script>
 
   <style>
-    :root {
-      --primary: #fc8019;
-      --primary-dark: #e26f10;
-      --bg: #0f1115;
-      --card-bg: #1a1d24;
-      --card-border: #2a2f3a;
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-      --accent-green: #10b981;
-    }
-
     * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
     }
-
+    input, textarea, select {
+      user-select: text;
+    }
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      padding: 16px;
-      padding-bottom: 80px;
+      background-color: #0D0E12;
+      font-family: 'Inter', sans-serif;
     }
-
-    /* PWA Install Banner */
-    .install-banner {
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0D0E12;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #282A37;
+      border-radius: 9999px;
+    }
+    .tap-scale {
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tap-scale:active {
+      transform: scale(0.96);
+    }
+    .glass {
+      background: rgba(22, 23, 31, 0.90);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .pinned-border {
+      border-color: rgba(252, 128, 25, 0.6) !important;
+      background: linear-gradient(135deg, rgba(252, 128, 25, 0.08) 0%, rgba(22, 23, 31, 0.96) 100%) !important;
+    }
+    .no-scrollbar::-webkit-scrollbar {
       display: none;
-      background: var(--primary);
-      color: #fff;
-      padding: 12px 16px;
-      border-radius: 10px;
-      text-align: center;
-      margin-bottom: 16px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.9rem;
-      box-shadow: 0 4px 12px rgba(252, 128, 25, 0.3);
     }
-
-    header {
-      text-align: center;
-      padding: 8px 0 16px;
-    }
-
-    h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary);
-      letter-spacing: -0.5px;
-    }
-
-    p.subtitle {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    /* Timer Widget */
-    .timer-card {
-      background: linear-gradient(135deg, #1f242d 0%, #161920 100%);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .timer-info span {
-      display: block;
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .timer-info strong {
-      font-size: 0.95rem;
-      color: var(--text);
-    }
-
-    .countdown-display {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--primary);
-      font-variant-numeric: tabular-nums;
-      background: rgba(252, 128, 25, 0.1);
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: 1px solid rgba(252, 128, 25, 0.2);
-    }
-
-    /* Category Filter Pills */
-    .filters {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 12px;
-      margin-bottom: 12px;
+    .no-scrollbar {
+      -ms-overflow-style: none;
       scrollbar-width: none;
-    }
-
-    .filters::-webkit-scrollbar {
-      display: none;
-    }
-
-    .filter-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      white-space: nowrap;
-      cursor: pointer;
-      font-weight: 500;
-    }
-
-    .filter-btn.active {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
-    }
-
-    /* Deal Cards Grid */
-    .deal-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .deal-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.1s ease, border-color 0.1s ease;
-    }
-
-    .deal-card:active {
-      transform: scale(0.98);
-      border-color: var(--primary);
-    }
-
-    .card-left {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .badge {
-      display: inline-block;
-      align-self: flex-start;
-      font-size: 0.65rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 2px 6px;
-      border-radius: 4px;
-    }
-
-    .badge.instamart { color: var(--primary); background: rgba(252, 128, 25, 0.12); }
-    .badge.amazon { color: #f59e0b; background: rgba(245, 158, 11, 0.12); }
-    .badge.steal { color: var(--accent-green); background: rgba(16, 185, 129, 0.12); }
-
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    .card-meta {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .open-arrow {
-      color: var(--primary);
-      font-size: 1.2rem;
-      font-weight: bold;
-      padding-left: 10px;
-    }
-
-    /* Add Bookmark Form */
-    .add-form-container {
-      margin-top: 24px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 16px;
-    }
-
-    .add-form-container h2 {
-      font-size: 0.95rem;
-      margin-bottom: 12px;
-      color: var(--text);
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    input, select {
-      background: #12141a;
-      border: 1px solid var(--card-border);
-      padding: 10px 12px;
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.85rem;
-      outline: none;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--primary);
-    }
-
-    button.submit-btn {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      margin-top: 4px;
-    }
-
-    button.submit-btn:active {
-      background: var(--primary-dark);
     }
   </style>
 </head>
-<body>
+<body class="text-app-text min-h-screen flex flex-col justify-between pb-24 sm:pb-12 antialiased">
 
-  <!-- In-app PWA Install Banner -->
-  <div id="installBanner" class="install-banner">
-    📲 Install Loot Deals App
-  </div>
-
-  <header>
-    <h1>🔥 Loot Deals Hub</h1>
-    <p class="subtitle">Real-time flash sales & clearance drop links</p>
+  <header class="sticky top-0 z-30 glass border-b border-app-border px-4 py-3">
+    <div class="max-w-md mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-swiggy-dark via-zomato to-flipkart flex items-center justify-center text-white shadow-lg shadow-swiggy/20">
+          <i class="ph-bold ph-folder-notch-open text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
+            LootBox
+            <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-md bg-swiggy/20 text-swiggy border border-swiggy/30">FOLDERS</span>
+          </h1>
+          <p class="text-[11px] text-app-muted">Swiggy • Zomato • Flipkart • Amazon</p>
+        </div>
+      </div>
+      
+      <!-- Top Actions -->
+      <div class="flex items-center space-x-1.5">
+        <button id="pwaHelpBtn" title="Add to Android Home Screen" class="w-8 h-8 rounded-full bg-app-card hover:bg-app-cardHover border border-app-border flex items-center justify-center text-app-muted hover:text-white tap-scale">
+          <i class="ph-bold ph-device-mobile text-lg"></i>
+        </button>
+        <button id="resetDefaultsBtn" title="Reset Default Shortcuts" class="w-8 h-8 rounded-full bg-app-card hover:bg-app-cardHover border border-app-border flex items-center justify-center text-app-muted hover:text-white tap-scale">
+          <i class="ph-bold ph-arrow-counter-clockwise text-base"></i>
+        </button>
+        <button id="openAddModalBtn" class="h-8 px-3 rounded-full bg-swiggy hover:bg-swiggy-dark text-white text-xs font-semibold flex items-center space-x-1 tap-scale shadow-md shadow-swiggy/30">
+          <i class="ph-bold ph-plus text-sm"></i>
+          <span>Add</span>
+        </button>
+      </div>
+    </div>
   </header>
 
-  <!-- 9 PM Clearance Drop Countdown -->
-  <div class="timer-card">
-    <div class="timer-info">
-      <span>Next Flash Clearance</span>
-      <strong>9:00 PM Fresh Drop</strong>
+  <main class="max-w-md mx-auto w-full px-4 pt-3 space-y-3.5 flex-1">
+
+    <!-- 9:00 PM Veggie Drop Countdown Banner -->
+    <section class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#20150d] via-app-card to-[#151720] border border-swiggy/30 p-3.5 shadow-xl">
+      <div class="flex items-start justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-lg">
+            🥬
+          </div>
+          <div>
+            <div class="flex items-center space-x-1.5">
+              <span class="text-xs font-bold text-white uppercase tracking-wider">9:00 PM Veggie Drop</span>
+              <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            </div>
+            <p class="text-[11px] text-app-muted">Nightly perishable stock clear-out</p>
+          </div>
+        </div>
+        <div class="text-right">
+          <span id="countdownTimer" class="font-mono text-sm font-bold text-swiggy tracking-tight">--:--:--</span>
+          <p class="text-[9px] uppercase tracking-wider text-app-muted" id="countdownLabel">Until Drop</p>
+        </div>
+      </div>
+
+      <!-- Quick Launch for 9 PM Drop -->
+      <div class="mt-2.5 pt-2 border-t border-app-border/60 flex items-center justify-between text-xs">
+        <span class="text-[11px] text-gray-300">Target Collection: <span class="text-swiggy font-mono font-medium">157747</span></span>
+        <a href="https://www.swiggy.com/stores/instamart/collection-listing?collectionId=157747&custom_back=true&share=true" target="_blank" rel="noopener noreferrer" class="text-xs font-semibold text-swiggy hover:underline flex items-center gap-1 tap-scale">
+          Open 9 PM Drop <i class="ph-bold ph-arrow-up-right text-xs"></i>
+        </a>
+      </div>
+    </section>
+
+    <section class="space-y-2">
+      <div class="flex items-center justify-between px-0.5">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-app-muted flex items-center gap-1">
+          <i class="ph-bold ph-folders text-xs"></i> Platform Folders
+        </span>
+        <span id="activeFolderIndicator" class="text-[11px] text-swiggy font-medium">All Stores</span>
+      </div>
+
+      <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar text-xs">
+        <button data-folder="all" class="folder-tab px-3 py-2 rounded-xl bg-app-card border border-swiggy/70 text-white font-semibold flex items-center space-x-1.5 flex-shrink-0 tap-scale shadow-sm">
+          <span>📁 All</span>
+          <span class="folder-badge text-[10px] px-1.5 py-0.2 bg-swiggy/30 text-swiggy rounded-full font-mono" id="count-all">0</span>
+        </button>
+
+        <button data-folder="swiggy" class="folder-tab px-3 py-2 rounded-xl bg-app-card border border-app-border text-app-muted hover:text-white font-medium flex items-center space-x-1.5 flex-shrink-0 tap-scale">
+          <span class="w-2 h-2 rounded-full bg-swiggy"></span>
+          <span>Swiggy</span>
+          <span class="folder-badge text-[10px] px-1.5 py-0.2 bg-app-border text-gray-300 rounded-full font-mono" id="count-swiggy">0</span>
+        </button>
+
+        <button data-folder="zomato" class="folder-tab px-3 py-2 rounded-xl bg-app-card border border-app-border text-app-muted hover:text-white font-medium flex items-center space-x-1.5 flex-shrink-0 tap-scale">
+          <span class="w-2 h-2 rounded-full bg-zomato"></span>
+          <span>Zomato / Blinkit</span>
+          <span class="folder-badge text-[10px] px-1.5 py-0.2 bg-app-border text-gray-300 rounded-full font-mono" id="count-zomato">0</span>
+        </button>
+
+        <button data-folder="flipkart" class="folder-tab px-3 py-2 rounded-xl bg-app-card border border-app-border text-app-muted hover:text-white font-medium flex items-center space-x-1.5 flex-shrink-0 tap-scale">
+          <span class="w-2 h-2 rounded-full bg-flipkart"></span>
+          <span>Flipkart Minutes</span>
+          <span class="folder-badge text-[10px] px-1.5 py-0.2 bg-app-border text-gray-300 rounded-full font-mono" id="count-flipkart">0</span>
+        </button>
+
+        <button data-folder="amazon" class="folder-tab px-3 py-2 rounded-xl bg-app-card border border-app-border text-app-muted hover:text-white font-medium flex items-center space-x-1.5 flex-shrink-0 tap-scale">
+          <span class="w-2 h-2 rounded-full bg-amazon"></span>
+          <span>Amazon</span>
+          <span class="folder-badge text-[10px] px-1.5 py-0.2 bg-app-border text-gray-300 rounded-full font-mono" id="count-amazon">0</span>
+        </button>
+
+        <button data-folder="other" class="folder-tab px-3 py-2 rounded-xl bg-app-card border border-app-border text-app-muted hover:text-white font-medium flex items-center space-x-1.5 flex-shrink-0 tap-scale">
+          <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+          <span>Others</span>
+          <span class="folder-badge text-[10px] px-1.5 py-0.2 bg-app-border text-gray-300 rounded-full font-mono" id="count-other">0</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="space-y-2">
+      <div class="relative">
+        <i class="ph-bold ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-app-muted text-base"></i>
+        <input 
+          id="searchInput" 
+          type="text" 
+          placeholder="Search by name, ID, ₹1, ₹9, platform..." 
+          class="w-full pl-10 pr-9 py-2.5 bg-app-card rounded-xl border border-app-border text-sm text-white placeholder-app-muted focus:outline-none focus:border-swiggy transition-colors"
+        >
+        <button id="clearSearchBtn" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-app-muted hover:text-white p-1">
+          <i class="ph-bold ph-x-circle text-base"></i>
+        </button>
+      </div>
+
+      <!-- Quick status tags -->
+      <div class="flex items-center space-x-1.5 overflow-x-auto pb-0.5 no-scrollbar text-xs">
+        <button data-tag="all" class="tag-chip px-2.5 py-1 rounded-lg bg-swiggy/20 border border-swiggy/40 text-swiggy font-medium whitespace-nowrap tap-scale">All Status</button>
+        <button data-tag="pinned" class="tag-chip px-2.5 py-1 rounded-lg bg-app-card border border-app-border text-app-muted hover:text-white font-medium whitespace-nowrap tap-scale">📌 Pinned Only</button>
+        <button data-tag="steal" class="tag-chip px-2.5 py-1 rounded-lg bg-app-card border border-app-border text-app-muted hover:text-white font-medium whitespace-nowrap tap-scale">₹1 / ₹9 Steals</button>
+        <button data-tag="daily" class="tag-chip px-2.5 py-1 rounded-lg bg-app-card border border-app-border text-app-muted hover:text-white font-medium whitespace-nowrap tap-scale">Daily Drops</button>
+      </div>
     </div>
-    <div class="countdown-display" id="timer">--:--:--</div>
+
+    <section>
+      <div class="flex items-center justify-between mb-2 px-1">
+        <span class="text-xs uppercase tracking-wider font-semibold text-app-muted" id="resultsCount">Active Shortcuts (0)</span>
+        <button id="sortToggleBtn" class="text-[11px] text-swiggy flex items-center space-x-1 hover:underline tap-scale">
+          <i class="ph-bold ph-arrows-down-up text-xs"></i>
+          <span id="sortLabel">Recent first</span>
+        </button>
+      </div>
+
+      <div id="cardsContainer" class="space-y-3">
+        <!-- Rendered dynamically via JavaScript -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="hidden text-center py-12 px-4 rounded-2xl border border-dashed border-app-border bg-app-card/40 mt-2">
+        <div class="w-12 h-12 mx-auto rounded-full bg-app-card flex items-center justify-center text-app-muted text-2xl mb-2">
+          <i class="ph-bold ph-folder-open"></i>
+        </div>
+        <h3 class="text-sm font-semibold text-white">No shortcuts in this folder</h3>
+        <p class="text-xs text-app-muted mt-1 max-w-xs mx-auto">No deals found for the current search or platform folder filter.</p>
+        <button id="emptyAddBtn" class="mt-3 px-4 py-2 rounded-xl bg-swiggy text-white text-xs font-semibold inline-flex items-center space-x-1.5 tap-scale">
+          <i class="ph-bold ph-plus"></i>
+          <span>Add Deal to This Folder</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Multi-Store Quick Guide Card -->
+    <section class="rounded-2xl bg-app-card/80 border border-app-border p-3.5 space-y-2">
+      <div class="flex items-center space-x-2 text-swiggy text-xs font-bold uppercase tracking-wide">
+        <i class="ph-bold ph-info text-base"></i>
+        <span>Multi-Store Quick Guide</span>
+      </div>
+      <ul class="text-[11px] text-app-muted space-y-1.5 pl-1 leading-relaxed">
+        <li class="flex items-start gap-1.5">
+          <span class="text-swiggy font-bold">•</span>
+          <span><strong>Swiggy Instamart:</strong> Perishables drop daily at 9 PM (ID 157747). MxN pages unlock at ₹99 cart.</span>
+        </li>
+        <li class="flex items-start gap-1.5">
+          <span class="text-zomato font-bold">•</span>
+          <span><strong>Zomato / Blinkit:</strong> 10 PM dark store markdowns and ₹1 add-on promotions on milk & snacks.</span>
+        </li>
+        <li class="flex items-start gap-1.5">
+          <span class="text-flipkart font-bold">•</span>
+          <span><strong>Flipkart Minutes:</strong> Daily vegetable flash drops starting at ₹9 with rapid local delivery.</span>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+
+  <div id="pwaModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-opacity">
+    <div class="w-full max-w-md bg-app-card border-t sm:border border-app-border rounded-t-3xl sm:rounded-2xl p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between pb-2 border-b border-app-border">
+        <div class="flex items-center space-x-2">
+          <i class="ph-bold ph-android-logo text-emerald-400 text-xl"></i>
+          <h2 class="text-sm font-bold text-white">Save to Android Home Screen</h2>
+        </div>
+        <button id="closePwaModal" class="text-app-muted hover:text-white p-1 tap-scale">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs text-app-text">
+        <div class="flex items-start space-x-3 bg-app-bg/60 p-3 rounded-xl border border-app-border">
+          <span class="w-6 h-6 rounded-full bg-swiggy text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">1</span>
+          <div>
+            <p class="font-semibold text-white">Tap Chrome Menu</p>
+            <p class="text-[11px] text-app-muted mt-0.5">Tap the <strong>three vertical dots (⋮)</strong> at the top right of your browser.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start space-x-3 bg-app-bg/60 p-3 rounded-xl border border-app-border">
+          <span class="w-6 h-6 rounded-full bg-swiggy text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">2</span>
+          <div>
+            <p class="font-semibold text-white">Select "Add to Home screen"</p>
+            <p class="text-[11px] text-app-muted mt-0.5">Choose <strong>Add to Home screen</strong> or <strong>Install App</strong>.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start space-x-3 bg-app-bg/60 p-3 rounded-xl border border-app-border">
+          <span class="w-6 h-6 rounded-full bg-swiggy text-white font-bold flex items-center justify-center flex-shrink-0 text-xs">3</span>
+          <div>
+            <p class="font-semibold text-white">Direct Mobile Access</p>
+            <p class="text-[11px] text-app-muted mt-0.5">Opens instantly like a native app with all your organized folders.</p>
+          </div>
+        </div>
+      </div>
+
+      <button id="dismissPwaModal" class="w-full py-2.5 rounded-xl bg-swiggy hover:bg-swiggy-dark text-white font-semibold text-xs tap-scale">
+        Got it!
+      </button>
+    </div>
   </div>
 
-  <!-- Category Filter Pills -->
-  <div class="filters">
-    <button class="filter-btn active" onclick="filterDeals('all')">All Deals</button>
-    <button class="filter-btn" onclick="filterDeals('instamart')">Instamart</button>
-    <button class="filter-btn" onclick="filterDeals('loot')">₹1 / ₹9 Steals</button>
-    <button class="filter-btn" onclick="filterDeals('amazon')">Amazon</button>
+  <div id="addModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="w-full max-w-md bg-app-card border-t sm:border border-app-border rounded-t-3xl sm:rounded-2xl p-5 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between pb-2 border-b border-app-border">
+        <h2 class="text-sm font-bold text-white flex items-center gap-1.5">
+          <i class="ph-bold ph-plus-circle text-swiggy"></i>
+          <span>Add Deal to Folder</span>
+        </h2>
+        <button id="closeAddModal" class="text-app-muted hover:text-white p-1 tap-scale">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <form id="addBookmarkForm" class="space-y-3 text-xs">
+        <div>
+          <label class="block text-app-muted font-medium mb-1">Shortcut Title *</label>
+          <input 
+            id="formTitle" 
+            type="text" 
+            required 
+            placeholder="e.g. Blinkit Late Night ₹1 Deals" 
+            class="w-full px-3 py-2 bg-app-bg rounded-xl border border-app-border text-white placeholder-gray-600 focus:outline-none focus:border-swiggy"
+          >
+        </div>
+
+        <div>
+          <label class="block text-app-muted font-medium mb-1">Deal Link / URL *</label>
+          <input 
+            id="formUrl" 
+            type="url" 
+            required 
+            placeholder="https://blinkit.com/... or https://instamart.in/..." 
+            class="w-full px-3 py-2 bg-app-bg rounded-xl border border-app-border text-white placeholder-gray-600 focus:outline-none focus:border-swiggy"
+          >
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-app-muted font-medium mb-1">Platform Folder *</label>
+            <select id="formFolder" class="w-full px-3 py-2 bg-app-bg rounded-xl border border-app-border text-white focus:outline-none focus:border-swiggy">
+              <option value="swiggy">Swiggy / Instamart</option>
+              <option value="zomato">Zomato / Blinkit</option>
+              <option value="flipkart">Flipkart / Minutes</option>
+              <option value="amazon">Amazon</option>
+              <option value="other">Other / Custom</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-app-muted font-medium mb-1">Deal Tag / Type</label>
+            <select id="formCategory" class="w-full px-3 py-2 bg-app-bg rounded-xl border border-app-border text-white focus:outline-none focus:border-swiggy">
+              <option value="steal">₹1 / ₹9 Steal</option>
+              <option value="daily">Daily 9 PM Drop</option>
+              <option value="flash">Flash Collection</option>
+              <option value="zone">Deal Zone</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-app-muted font-medium mb-1">Badge Text</label>
+            <input 
+              id="formBadge" 
+              type="text" 
+              placeholder="e.g. ₹99 Cart / 90% OFF" 
+              class="w-full px-3 py-2 bg-app-bg rounded-xl border border-app-border text-white placeholder-gray-600 focus:outline-none focus:border-swiggy"
+            >
+          </div>
+          <div>
+            <label class="block text-app-muted font-medium mb-1">Min. Cart Rule</label>
+            <input 
+              id="formCartRule" 
+              type="text" 
+              placeholder="e.g. ₹99 Minimum / No min" 
+              class="w-full px-3 py-2 bg-app-bg rounded-xl border border-app-border text-white placeholder-gray-600 focus:outline-none focus:border-swiggy"
+            >
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-app-muted font-medium mb-1">Notes / Instructions</label>
+          <textarea 
+            id="formDesc" 
+            rows="2" 
+            placeholder="e.g. Available only after 9:30 PM, add essentials first" 
+            class="w-full px-3 py-2 bg-app-bg rounded-xl border border-app-border text-white placeholder-gray-600 focus:outline-none focus:border-swiggy resize-none"
+          ></textarea>
+        </div>
+
+        <div class="pt-2 flex space-x-2">
+          <button type="button" id="cancelAddModal" class="w-1/2 py-2.5 rounded-xl bg-app-cardHover text-app-muted font-medium tap-scale">
+            Cancel
+          </button>
+          <button type="submit" class="w-1/2 py-2.5 rounded-xl bg-swiggy hover:bg-swiggy-dark text-white font-semibold tap-scale shadow-lg shadow-swiggy/30">
+            Save to Folder
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
-  <!-- Deals List -->
-  <div class="deal-grid" id="dealContainer"></div>
-
-  <!-- Add Custom Bookmark Form -->
-  <div class="add-form-container">
-    <h2>Save Custom Deal Link</h2>
-    <div class="form-group">
-      <input type="text" id="dealTitle" placeholder="Title (e.g. Night Vegetable Drop)" />
-      <input type="url" id="dealUrl" placeholder="Target Link (https://...)" />
-      <select id="dealCategory">
-        <option value="instamart">Instamart</option>
-        <option value="loot">₹1 / ₹9 Steals</option>
-        <option value="amazon">Amazon</option>
-      </select>
-      <button class="submit-btn" onclick="addBookmark()">Save Shortcut</button>
-    </div>
+  <!-- In-App Toast Notification -->
+  <div id="toastNotification" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-gray-900 border border-app-border text-white px-4 py-2.5 rounded-full shadow-2xl flex items-center space-x-2 text-xs font-semibold transition-all duration-300 opacity-0 pointer-events-none translate-y-3">
+    <i id="toastIcon" class="ph-bold ph-check-circle text-swiggy text-base"></i>
+    <span id="toastMessage">Link copied to clipboard</span>
   </div>
 
   <script>
-    // 1. Initial Deal Listings
-    const DEFAULT_DEALS = [
+    const SEED_BOOKMARKS = [
       {
-        id: '1',
-        title: 'Instamart 9 PM Clearance Engine',
-        category: 'instamart',
-        meta: 'Fresh Produce & Bakery Clearance Drops',
-        badge: 'instamart',
-        url: 'https://www.swiggy.com/instamart'
+        id: "bm-swiggy-veggies",
+        folder: "swiggy",
+        title: "Daily Fresh Fruits & Veggies (9 PM Drop)",
+        url: "https://www.swiggy.com/stores/instamart/collection-listing?collectionId=157747&custom_back=true&share=true",
+        collectionId: "ID: 157747",
+        category: "daily",
+        badge: "Everyday 9 PM Drop",
+        icon: "ph-carrot",
+        isPinned: true,
+        desc: "Fruits & vegetables clearance drop every night at 9 PM to clear daily perishable stock.",
+        cartRule: "No minimum",
+        timestamp: Date.now()
       },
       {
-        id: '2',
-        title: '₹1 & ₹9 Steal Deal Collection',
-        category: 'loot',
-        meta: 'Cart Additions & Flash Steals',
-        badge: 'steal',
-        url: 'https://www.swiggy.com/instamart'
+        id: "bm-swiggy-deals9",
+        folder: "swiggy",
+        title: "Deals Store: ₹9 Items on ₹99 Order",
+        url: "https://www.swiggy.com/stores/instamart/campaign-collection/mxn?layoutId=24245&customerPage=STORES_MxN_14&share=true&custom_back=true",
+        collectionId: "Layout: 24245 (MxN_14)",
+        category: "steal",
+        badge: "₹9 on ₹99 Order",
+        icon: "ph-currency-inr",
+        isPinned: true,
+        desc: "Deals Store promotion. Build a ₹99 minimum cart value to unlock products at ₹9.",
+        cartRule: "Min Cart ₹99",
+        timestamp: Date.now() - 1000
       },
       {
-        id: '3',
-        title: 'Amazon Lightning Deals Hub',
-        category: 'amazon',
-        meta: 'Flash Discounts & Daily Lightning Deals',
-        badge: 'amazon',
-        url: 'https://www.amazon.in/deals'
+        id: "bm-swiggy-dealzone",
+        folder: "swiggy",
+        title: "Instamart Deal Zone Hub",
+        url: "https://instamart.in/collection-listing?collectionId=449443&share=true",
+        collectionId: "ID: 449443",
+        category: "zone",
+        badge: "Deal Zone",
+        icon: "ph-fire",
+        isPinned: false,
+        desc: "Rotating deal zone featuring multi-pack clearances, FMCG bundles, and brand drops.",
+        cartRule: "Store specific",
+        timestamp: Date.now() - 2000
+      },
+      {
+        id: "bm-swiggy-flash",
+        folder: "swiggy",
+        title: "Flash Collection Clearance",
+        url: "https://instamart.in/collection-listing?collectionId=426276&share=true",
+        collectionId: "ID: 426276",
+        category: "flash",
+        badge: "Flash Drop",
+        icon: "ph-lightning",
+        isPinned: false,
+        desc: "Hidden flash sale collection link used for special flash promotional campaigns.",
+        cartRule: "Flash promo",
+        timestamp: Date.now() - 3000
+      },
+      {
+        id: "bm-swiggy-mxn37115",
+        folder: "swiggy",
+        title: "Campaign Collection MxN (Layout 37115)",
+        url: "https://instamart.in/campaign-collection/mxn?layoutId=37115&customerPage=STORES_MxN_38&share=true&custom_back=true",
+        collectionId: "Layout: 37115 (MxN_38)",
+        category: "steal",
+        badge: "MxN Engine",
+        icon: "ph-shopping-bag-open",
+        isPinned: false,
+        desc: "Alternative MxN promotional engine for multi-product discounts and threshold add-ons.",
+        cartRule: "Cart Trigger",
+        timestamp: Date.now() - 4000
+      },
+      {
+        id: "bm-blinkit-perishables",
+        folder: "zomato",
+        title: "Blinkit Late Night Fresh Drops",
+        url: "https://blinkit.com/cln/deals-zone/cid/318",
+        collectionId: "Blinkit Deals Hub",
+        category: "daily",
+        badge: "Perishables 9-10 PM",
+        icon: "ph-lightning",
+        isPinned: false,
+        desc: "Blinkit dark store nightly liquidation on bakery, dairy, and seasonal vegetables.",
+        cartRule: "Store inventory",
+        timestamp: Date.now() - 5000
+      },
+      {
+        id: "bm-zomato-gold",
+        folder: "zomato",
+        title: "Zomato Everyday Steal Banners",
+        url: "https://www.zomato.com/",
+        collectionId: "Zomato Food Hub",
+        category: "steal",
+        badge: "Up to 60% OFF",
+        icon: "ph-bowl-food",
+        isPinned: false,
+        desc: "Quick access to restaurant flash promotions, 1-on-1 offers, and cart discounts.",
+        cartRule: "Varies by cafe",
+        timestamp: Date.now() - 6000
+      },
+      {
+        id: "bm-flipkart-minutes",
+        folder: "flipkart",
+        title: "Flipkart Minutes - ₹9 Grocery Deals",
+        url: "https://www.flipkart.com/flipkart-minutes-store?marketplace=HYPERLOCAL",
+        collectionId: "Minutes Hyperlocal",
+        category: "steal",
+        badge: "₹9 Fresh Produce",
+        icon: "ph-clock-countdown",
+        isPinned: false,
+        desc: "Flipkart Minutes 10-minute grocery hub featuring introductory ₹9 vegetables and staple drops.",
+        cartRule: "Hyperlocal Pin",
+        timestamp: Date.now() - 7000
+      },
+      {
+        id: "bm-amazon-shoes",
+        folder: "amazon",
+        title: "Amazon Footwear Deals",
+        url: "https://amzn.to/4jwes05",
+        collectionId: "Amazon India",
+        category: "flash",
+        badge: "Men's Shoes",
+        icon: "ph-sneaker",
+        isPinned: false,
+        desc: "External clearance cross-promoted on deal channels for discounted footwear collections.",
+        cartRule: "Amazon India",
+        timestamp: Date.now() - 8000
       }
     ];
 
-    function getStoredDeals() {
-      const stored = localStorage.getItem('loot_deals_data');
-      return stored ? JSON.parse(stored) : DEFAULT_DEALS;
+    const STORAGE_KEY = 'instaloot_folders_step2';
+    let bookmarks = [];
+
+    function initBookmarks() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          bookmarks = JSON.parse(stored);
+        } else {
+          bookmarks = [...SEED_BOOKMARKS];
+          saveBookmarks();
+        }
+      } catch (e) {
+        bookmarks = [...SEED_BOOKMARKS];
+      }
     }
 
-    let activeCategory = 'all';
+    function saveBookmarks() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(bookmarks));
+      } catch (e) {
+        console.warn('LocalStorage unavailable', e);
+      }
+    }
 
-    function renderDeals() {
-      const container = document.getElementById('dealContainer');
-      container.innerHTML = '';
-      const deals = getStoredDeals();
+    let currentFolder = 'all';
+    let currentTag = 'all';
+    let searchQuery = '';
+    let sortRecentFirst = true;
 
-      const filtered = activeCategory === 'all' 
-        ? deals 
-        : deals.filter(item => item.category === activeCategory);
+    let toastTimeout;
+    function showToast(message, iconClass = 'ph-check-circle', isError = false) {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
 
-      filtered.forEach(deal => {
-        const card = document.createElement('a');
-        card.className = 'deal-card';
-        card.href = deal.url;
-        card.target = '_blank';
-        card.rel = 'noopener noreferrer';
-        card.innerHTML = `
-          <div class="card-left">
-            <span class="badge ${deal.badge || deal.category}">${deal.category.toUpperCase()}</span>
-            <div class="card-title">${deal.title}</div>
-            <div class="card-meta">${deal.meta || deal.url}</div>
-          </div>
-          <div class="open-arrow">→</div>
-        `;
-        container.appendChild(card);
+      clearTimeout(toastTimeout);
+      toastMsg.innerText = message;
+      toastIcon.className = `ph-bold ${iconClass} ${isError ? 'text-red-400' : 'text-swiggy'} text-base`;
+
+      toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
+      }, 2400);
+    }
+
+    function copyUrl(text) {
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        const successful = document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        if (successful) {
+          showToast('Link copied to clipboard!', 'ph-copy-simple');
+        } else {
+          showToast('Failed to copy', 'ph-warning', true);
+        }
+      } catch (err) {
+        showToast('Error copying link', 'ph-warning', true);
+      }
+    }
+
+    const BRAND_THEMES = {
+      swiggy: {
+        name: "Swiggy",
+        pillBg: "bg-swiggy/15 text-swiggy border-swiggy/30",
+        badgeBg: "bg-swiggy",
+        dotColor: "bg-swiggy",
+        btnGradient: "from-swiggy to-swiggy-dark",
+        iconColor: "text-swiggy"
+      },
+      zomato: {
+        name: "Zomato/Blinkit",
+        pillBg: "bg-zomato/15 text-red-400 border-zomato/30",
+        badgeBg: "bg-zomato",
+        dotColor: "bg-zomato",
+        btnGradient: "from-zomato to-[#A11925]",
+        iconColor: "text-red-400"
+      },
+      flipkart: {
+        name: "Flipkart",
+        pillBg: "bg-flipkart/15 text-blue-400 border-flipkart/30",
+        badgeBg: "bg-flipkart",
+        dotColor: "bg-flipkart",
+        btnGradient: "from-flipkart to-flipkart-dark",
+        iconColor: "text-blue-400"
+      },
+      amazon: {
+        name: "Amazon",
+        pillBg: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+        badgeBg: "bg-amber-500",
+        dotColor: "bg-amber-400",
+        btnGradient: "from-amber-600 to-amber-700",
+        iconColor: "text-amber-400"
+      },
+      other: {
+        name: "Custom",
+        pillBg: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+        badgeBg: "bg-purple-600",
+        dotColor: "bg-purple-400",
+        btnGradient: "from-purple-600 to-indigo-700",
+        iconColor: "text-purple-400"
+      }
+    };
+
+    function updateFolderCounts() {
+      const counts = { all: bookmarks.length, swiggy: 0, zomato: 0, flipkart: 0, amazon: 0, other: 0 };
+      bookmarks.forEach(b => {
+        const folder = b.folder || 'other';
+        if (counts[folder] !== undefined) counts[folder]++;
+        else counts.other++;
       });
+
+      document.getElementById('count-all').innerText = counts.all;
+      document.getElementById('count-swiggy').innerText = counts.swiggy;
+      document.getElementById('count-zomato').innerText = counts.zomato;
+      document.getElementById('count-flipkart').innerText = counts.flipkart;
+      document.getElementById('count-amazon').innerText = counts.amazon;
+      document.getElementById('count-other').innerText = counts.other;
     }
 
-    function filterDeals(cat) {
-      activeCategory = cat;
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        const match = cat === 'all' 
-          ? btn.textContent.toLowerCase().includes('all') 
-          : (cat === 'loot' ? btn.textContent.includes('₹1') : btn.textContent.toLowerCase().includes(cat));
-        btn.classList.toggle('active', match);
+    function renderCards() {
+      updateFolderCounts();
+      const container = document.getElementById('cardsContainer');
+      const emptyState = document.getElementById('emptyState');
+      const resultsCount = document.getElementById('resultsCount');
+
+      let filtered = bookmarks.filter(item => {
+        const itemFolder = item.folder || 'other';
+        const matchesFolder = (currentFolder === 'all') || (itemFolder === currentFolder);
+
+        let matchesTag = true;
+        if (currentTag === 'pinned') {
+          matchesTag = !!item.isPinned;
+        } else if (currentTag === 'steal') {
+          matchesTag = (item.category === 'steal');
+        } else if (currentTag === 'daily') {
+          matchesTag = (item.category === 'daily');
+        }
+
+        const q = searchQuery.toLowerCase().trim();
+        const matchesSearch = 
+          !q || 
+          item.title.toLowerCase().includes(q) || 
+          (item.desc && item.desc.toLowerCase().includes(q)) || 
+          (item.collectionId && item.collectionId.toLowerCase().includes(q)) || 
+          (item.folder && item.folder.toLowerCase().includes(q)) ||
+          item.url.toLowerCase().includes(q);
+
+        return matchesFolder && matchesTag && matchesSearch;
       });
-      renderDeals();
-    }
 
-    function addBookmark() {
-      const title = document.getElementById('dealTitle').value.trim();
-      const url = document.getElementById('dealUrl').value.trim();
-      const category = document.getElementById('dealCategory').value;
+      filtered.sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        return sortRecentFirst ? (b.timestamp - a.timestamp) : (a.timestamp - b.timestamp);
+      });
 
-      if (!title || !url) {
-        alert('Please enter both a title and URL.');
+      resultsCount.innerText = `Active Shortcuts (${filtered.length})`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
         return;
       }
 
-      const deals = getStoredDeals();
-      deals.unshift({
-        id: Date.now().toString(),
-        title,
-        category,
-        meta: url,
-        badge: category,
-        url
-      });
+      emptyState.classList.add('hidden');
 
-      localStorage.setItem('loot_deals_data', JSON.stringify(deals));
-      document.getElementById('dealTitle').value = '';
-      document.getElementById('dealUrl').value = '';
-      renderDeals();
+      container.innerHTML = filtered.map(item => {
+        const itemFolder = item.folder || 'other';
+        const theme = BRAND_THEMES[itemFolder] || BRAND_THEMES.other;
+        const isPinned = !!item.isPinned;
+
+        return `
+          <div class="relative group bg-app-card rounded-2xl border ${isPinned ? 'pinned-border' : 'border-app-border'} p-3.5 hover:border-app-border/80 transition-all duration-200">
+            <div class="flex items-center justify-between gap-2 mb-2">
+              <div class="flex items-center space-x-1.5 flex-wrap gap-y-1">
+                ${isPinned ? `
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-swiggy text-white flex items-center gap-1 shadow-sm">
+                    <i class="ph-bold ph-push-pin text-[11px]"></i> PINNED
+                  </span>
+                ` : ''}
+
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border flex items-center gap-1 ${theme.pillBg}">
+                  <span class="w-1.5 h-1.5 rounded-full ${theme.dotColor}"></span>
+                  ${theme.name.toUpperCase()}
+                </span>
+
+                <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-app-border/80 text-gray-200">
+                  ${item.badge || 'DEAL'}
+                </span>
+
+                ${item.cartRule ? `
+                  <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-black/40 text-gray-400">
+                    ${item.cartRule}
+                  </span>
+                ` : ''}
+              </div>
+
+              <!-- Pin, Copy, & Delete Action Icons -->
+              <div class="flex items-center space-x-1">
+                <button onclick="togglePinBookmark('${item.id}')" title="${isPinned ? 'Unpin shortcut' : 'Pin shortcut to top'}" class="w-7 h-7 rounded-lg ${isPinned ? 'bg-swiggy/20 border-swiggy/50 text-swiggy' : 'bg-app-bg hover:bg-app-cardHover border-app-border text-app-muted hover:text-white'} border flex items-center justify-center tap-scale transition-colors">
+                  <i class="ph-bold ph-push-pin text-xs ${isPinned ? 'rotate-45' : ''}"></i>
+                </button>
+                <button onclick="copyUrl('${item.url}')" title="Copy URL" class="w-7 h-7 rounded-lg bg-app-bg hover:bg-app-cardHover border border-app-border text-app-muted hover:text-white flex items-center justify-center tap-scale">
+                  <i class="ph-bold ph-copy text-xs"></i>
+                </button>
+                <button onclick="deleteBookmark('${item.id}')" title="Delete shortcut" class="w-7 h-7 rounded-lg bg-app-bg hover:bg-red-500/20 border border-app-border text-app-muted hover:text-red-400 flex items-center justify-center tap-scale">
+                  <i class="ph-bold ph-trash text-xs"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-3">
+              <div class="w-10 h-10 rounded-xl bg-app-bg border border-app-border flex items-center justify-center ${theme.iconColor} text-xl flex-shrink-0">
+                <i class="ph-bold ${item.icon || 'ph-shopping-bag'}"></i>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-sm font-bold text-white tracking-tight truncate">${item.title}</h3>
+                <p class="text-xs text-app-muted mt-0.5 line-clamp-2 leading-relaxed">${item.desc || 'Direct collection listing link.'}</p>
+                
+                <div class="mt-1.5 flex items-center gap-2 text-[10px] text-gray-400 font-mono">
+                  <span class="truncate max-w-[210px] text-gray-400">${item.collectionId || 'Direct URL'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3 pt-2.5 border-t border-app-border/60 flex items-center gap-2">
+              <a 
+                href="${item.url}" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r ${theme.btnGradient} hover:brightness-110 text-white text-xs font-bold flex items-center justify-center space-x-1.5 tap-scale shadow-md"
+              >
+                <span>Launch on ${theme.name}</span>
+                <i class="ph-bold ph-arrow-up-right text-xs"></i>
+              </a>
+              <button 
+                onclick="copyUrl('${item.url}')" 
+                class="px-3 py-2 rounded-xl bg-app-bg hover:bg-app-cardHover border border-app-border text-xs text-app-muted hover:text-white font-medium flex items-center space-x-1 tap-scale"
+              >
+                <i class="ph-bold ph-share-network"></i>
+                <span class="hidden sm:inline">Share</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
-    // 2. Countdown Timer to 9:00 PM IST
+    window.togglePinBookmark = function(id) {
+      const target = bookmarks.find(b => b.id === id);
+      if (target) {
+        target.isPinned = !target.isPinned;
+        saveBookmarks();
+        renderCards();
+        showToast(target.isPinned ? 'Pinned to top!' : 'Unpinned', 'ph-push-pin');
+      }
+    };
+
+    window.deleteBookmark = function(id) {
+      const target = bookmarks.find(b => b.id === id);
+      const title = target ? target.title : 'Shortcut';
+      bookmarks = bookmarks.filter(b => b.id !== id);
+      saveBookmarks();
+      renderCards();
+      showToast(`Removed "${title.slice(0, 18)}..."`, 'ph-trash');
+    };
+
     function updateCountdown() {
       const now = new Date();
-      const dropTime = new Date();
-      dropTime.setHours(21, 0, 0, 0);
+      const target = new Date();
+      target.setHours(21, 0, 0, 0); // 9:00:00 PM local time
 
-      if (now > dropTime) {
-        dropTime.setDate(dropTime.getDate() + 1);
+      if (now > target) {
+        const diffMinutes = (now - target) / 60000;
+        if (diffMinutes < 15) {
+          document.getElementById('countdownTimer').innerText = "LIVE NOW!";
+          document.getElementById('countdownTimer').classList.add('text-emerald-400', 'animate-pulse');
+          document.getElementById('countdownLabel').innerText = "Grab Drops!";
+          return;
+        }
+        target.setDate(target.getDate() + 1);
       }
 
-      const diff = dropTime - now;
-      const hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
-      const mins = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
-      const secs = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+      document.getElementById('countdownTimer').classList.remove('text-emerald-400', 'animate-pulse');
+      document.getElementById('countdownLabel').innerText = "Until Drop";
 
-      document.getElementById('timer').innerText = `${hours}:${mins}:${secs}`;
+      const diffMs = target - now;
+      const hours = Math.floor(diffMs / (1000 * 60 * 60));
+      const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
+
+      const pad = n => String(n).padStart(2, '0');
+      document.getElementById('countdownTimer').innerText = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
     }
 
-    setInterval(updateCountdown, 1000);
-    updateCountdown();
-    renderDeals();
+    function detectFolderFromUrl(url) {
+      const lower = url.toLowerCase();
+      if (lower.includes('swiggy.com') || lower.includes('instamart.in')) return 'swiggy';
+      if (lower.includes('zomato.com') || lower.includes('blinkit.com')) return 'zomato';
+      if (lower.includes('flipkart.com')) return 'flipkart';
+      if (lower.includes('amzn.to') || lower.includes('amazon.')) return 'amazon';
+      return 'other';
+    }
 
-    // 3. Service Worker Registration
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then((reg) => console.log('SW Active:', reg.scope))
-          .catch((err) => console.log('SW Registration error:', err));
+    function setupModals() {
+      const pwaModal = document.getElementById('pwaModal');
+      const addModal = document.getElementById('addModal');
+
+      document.getElementById('pwaHelpBtn').addEventListener('click', () => {
+        pwaModal.classList.remove('hidden');
+      });
+      document.getElementById('closePwaModal').addEventListener('click', () => {
+        pwaModal.classList.add('hidden');
+      });
+      document.getElementById('dismissPwaModal').addEventListener('click', () => {
+        pwaModal.classList.add('hidden');
+      });
+
+      const openAdd = () => {
+        document.getElementById('addBookmarkForm').reset();
+        if (currentFolder !== 'all') {
+          document.getElementById('formFolder').value = currentFolder;
+        }
+        addModal.classList.remove('hidden');
+      };
+      const closeAdd = () => {
+        addModal.classList.add('hidden');
+      };
+
+      document.getElementById('openAddModalBtn').addEventListener('click', openAdd);
+      document.getElementById('emptyAddBtn').addEventListener('click', openAdd);
+      document.getElementById('closeAddModal').addEventListener('click', closeAdd);
+      document.getElementById('cancelAddModal').addEventListener('click', closeAdd);
+
+      document.getElementById('formUrl').addEventListener('input', (e) => {
+        const detected = detectFolderFromUrl(e.target.value);
+        if (detected) {
+          document.getElementById('formFolder').value = detected;
+        }
+      });
+
+      document.getElementById('addBookmarkForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const title = document.getElementById('formTitle').value.trim();
+        const url = document.getElementById('formUrl').value.trim();
+        const folder = document.getElementById('formFolder').value;
+        const category = document.getElementById('formCategory').value;
+        const badge = document.getElementById('formBadge').value.trim() || 'Deal';
+        const cartRule = document.getElementById('formCartRule').value.trim() || '';
+        const desc = document.getElementById('formDesc').value.trim() || 'Saved deal shortcut.';
+
+        let collectionId = 'Direct Link';
+        try {
+          const parsed = new URL(url);
+          if (parsed.searchParams.get('collectionId')) {
+            collectionId = 'ID: ' + parsed.searchParams.get('collectionId');
+          } else if (parsed.searchParams.get('layoutId')) {
+            collectionId = 'Layout: ' + parsed.searchParams.get('layoutId');
+          } else {
+            collectionId = parsed.hostname;
+          }
+        } catch (err) {}
+
+        const newBookmark = {
+          id: 'custom-' + Date.now(),
+          folder,
+          title,
+          url,
+          collectionId,
+          category,
+          badge,
+          icon: category === 'steal' ? 'ph-currency-inr' : category === 'daily' ? 'ph-carrot' : 'ph-tag',
+          isPinned: true,
+          desc,
+          cartRule,
+          timestamp: Date.now()
+        };
+
+        bookmarks.unshift(newBookmark);
+        saveBookmarks();
+        renderCards();
+        showToast(`Saved to ${BRAND_THEMES[folder]?.name || 'Folder'}!`, 'ph-push-pin');
+
+        document.getElementById('addBookmarkForm').reset();
+        closeAdd();
+      });
+
+      document.getElementById('resetDefaultsBtn').addEventListener('click', () => {
+        bookmarks = JSON.parse(JSON.stringify(SEED_BOOKMARKS));
+        saveBookmarks();
+        renderCards();
+        showToast('Restored default shortcuts', 'ph-arrow-counter-clockwise');
       });
     }
 
-    // 4. In-App Install Prompt
-    let deferredPrompt;
-    const installBanner = document.getElementById('installBanner');
+    function setupFoldersAndSearch() {
+      const folderTabs = document.querySelectorAll('.folder-tab');
+      const activeFolderIndicator = document.getElementById('activeFolderIndicator');
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBanner.style.display = 'block';
-    });
+      folderTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          folderTabs.forEach(t => {
+            t.classList.remove('border-swiggy/70', 'text-white', 'bg-app-cardHover');
+            t.classList.add('border-app-border', 'text-app-muted');
+          });
 
-    installBanner.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        installBanner.style.display = 'none';
-      }
-    });
+          tab.classList.remove('border-app-border', 'text-app-muted');
+          tab.classList.add('border-swiggy/70', 'text-white', 'bg-app-cardHover');
 
-    window.addEventListener('appinstalled', () => {
-      installBanner.style.display = 'none';
-    });
+          currentFolder = tab.getAttribute('data-folder');
+          activeFolderIndicator.innerText = tab.querySelector('span:nth-child(2)')?.innerText || (currentFolder === 'all' ? 'All Stores' : currentFolder);
+          renderCards();
+        });
+      });
+
+      const searchInput = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('clearSearchBtn');
+
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        if (searchQuery.length > 0) {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+        renderCards();
+      });
+
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchQuery = '';
+        clearBtn.classList.add('hidden');
+        renderCards();
+      });
+
+      const tagChips = document.querySelectorAll('.tag-chip');
+      tagChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          tagChips.forEach(c => {
+            c.classList.remove('bg-swiggy/20', 'border-swiggy/40', 'text-swiggy');
+            c.classList.add('bg-app-card', 'border-app-border', 'text-app-muted');
+          });
+
+          chip.classList.remove('bg-app-card', 'border-app-border', 'text-app-muted');
+          chip.classList.add('bg-swiggy/20', 'border-swiggy/40', 'text-swiggy');
+
+          currentTag = chip.getAttribute('data-tag');
+          renderCards();
+        });
+      });
+
+      const sortBtn = document.getElementById('sortToggleBtn');
+      const sortLabel = document.getElementById('sortLabel');
+      sortBtn.addEventListener('click', () => {
+        sortRecentFirst = !sortRecentFirst;
+        sortLabel.innerText = sortRecentFirst ? 'Recent first' : 'Oldest first';
+        renderCards();
+      });
+    }
+
+    window.onload = function () {
+      initBookmarks();
+      renderCards();
+      setupModals();
+      setupFoldersAndSearch();
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    };
   </script>
 </body>
 </html>
+```
